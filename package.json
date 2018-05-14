@@ -4,15 +4,10 @@
   "description": "{{package_description}}",
   "main": "build/index.js",
   "repository": "https://github.com/phenax/react-cc-validator",
-  "author": "Akshay Nair<akshay.n@peopleinteractive.in>",
+  "author": "{{author}}",
   "license": "MIT",
   "keywords": [
-    "react",
-    "cc",
-    "credit",
-    "debit",
-    "card",
-    "validation"
+    "react"
   ],
   "scripts": {
     "test": "jest",
