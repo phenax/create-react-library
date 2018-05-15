@@ -1,5 +1,5 @@
 
-module.exports = ({ args, params }) => {
+module.exports = ({ args }) => {
   
   return {
     templateDirGlob: './template/**/*',

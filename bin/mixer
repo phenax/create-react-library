@@ -1,12 +1,128 @@
-#!/bin/env node
+#!/usr/bin/env node
 
 const fs = require('fs');
+const path = require('path');
 const glob = require('glob');
 const yargs = require('yargs');
-const handlebars = require('handlebars');
+const mustache = require('mustache');
+const {
+    compose,
+} = require('crocks');
+
+
+const PROJECT_ROOT = path.resolve(__dirname, '../');
+const USER_DIR = path.resolve();
+
+/*
+
+type Args = {
+    boilerplateName :: String
+    outDir :: String
+    args :: Object<String>
+}
+
+type TemplateConfig = {
+    templateDirGlob :: String
+    data :: Object
+}
+
+*/
+
+// parseArgs :: () -> Args
+const parseArgs = () => {
+    const { _: [ boilerplateName ], o: outDir, ...args } = yargs.argv;
+    return { boilerplateName, outDir, args };
+};
+
+// getConfig :: String -> String
+const getConfig = key => parseArgs()[key];
+
+
+const isDirectory = dpath => {
+    try {
+        return fs.lstatSync(dpath).isDirectory();
+    } catch(e) {
+        return false;
+    }
+};
+
+const mkdirp = dirname => {
+    dirname = path.normalize(dirname).split(path.sep);
+
+    dirname.forEach((sdir, index) => {
+
+        const pathInQuestion =
+            dirname.slice(0,index+1).join(path.sep);
+
+        if((!isDirectory(pathInQuestion)) && pathInQuestion)
+            mkdirp(pathInQuestion);
+    });
+};
+
+// getTemplatePath :: String -> Either<String>
+const getTemplatePath = templateName => {
+
+    let inPackageTemplate =
+        path.join(__dirname, '../packages', templateName);
+    
+    if(isDirectory(inPackageTemplate)) {
+        return Either.Right(inPackageTemplate);
+    } else {
+        return Either.Left('Package not found');
+    }
+};
+
+const importModule = importPath => (...args) => ({
+    ...require(importPath)(...args),
+    _requireMetaData: { importPath },
+});
 
 // Parse all arguments
 // Call the package
 // Use glob and package path to get template path
 // Use the data for rendering the template
 // Output to current directory
+
+
+const getPathToModule = templatePath =>
+    path.join(templatePath, 'index.js');
+
+const joinPathWith = p2 => p1 => path.join(p1, p2);
+
+getTemplatePath(getConfig('boilerplateName'))
+    .map(getPathToModule)
+    .map(importModule)
+    .map(fn => fn({ args: getConfig('args') }))
+    .map(({ templateDirGlob, data, _requireMetaData: { importPath } }) => ({
+        files: compose(
+            glob.sync,
+            joinPathWith(templateDirGlob),
+            path.dirname
+        )(importPath),
+        data,
+    }))
+    .map(({ files, data }) => {
+        // console.log(files);
+        files
+            .filter(filePath => fs.statSync(filePath).isFile())
+            .map(filePath => {
+                let fileContents = fs.readFileSync(filePath);
+                fileContents =
+                    mustache.render(fileContents.toString(), data);
+
+                let outDir = path.join(USER_DIR, getConfig('outDir'));
+                outDir = filePath.replace(PROJECT_ROOT, outDir);
+
+                // console.log('f +++ ', filePath, '\n');
+                // console.log('d >>> ', __dirname, '\n');
+                // console.log('o --- ', outDir, '\n');
+
+                mkdirp(path.dirname(outDir));
+
+                fs.writeFileSync(outDir, fileContents);
+            });
+    })
+    .coalesce(
+        e => console.error(e),
+        stuff => console.log(stuff),
+    );

@@ -1,7 +1,8 @@
 {
   "dependencies": {
+    "crocks": "^0.9.3",
     "glob": "^7.1.2",
-    "handlebars": "^4.0.11",
+    "mustache": "^2.3.0",
     "yargs": "^11.0.0"
   }
 }
