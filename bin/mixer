@@ -91,12 +91,20 @@ const boilerplateModule = importModule(templatePath);
 // TODO: Check if boilerplateModule is a function
 const templateConfig = boilerplateModule({ args: getConfig('args') });
 
-const { ignore: ignoredRegex, data: templateData } = templateConfig;
+const {
+    ignore: ignoredRegex,
+    data: templateData,
+    preventExecution = false
+} = templateConfig;
+
+if(preventExecution) {
+    return;
+}
 
 const templateDirGlob = './**/*';
 
-// { templateDirGlob, data }
-const boilerplateFiles = glob.sync(path.join(templatePath, 'template', templateDirGlob));
+const boilerplateFiles =
+    glob.sync(path.join(templatePath, 'template', templateDirGlob));
 
 boilerplateFiles
     .filter(isFile)
