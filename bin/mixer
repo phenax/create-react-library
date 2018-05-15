@@ -3,7 +3,6 @@
 const fs = require('fs');
 const path = require('path');
 const glob = require('glob');
-const yargs = require('yargs');
 const mustache = require('mustache');
 const mkdirp = require('mkdirp');
 const {
@@ -12,81 +11,38 @@ const {
     test: testRegex,
 } = require('ramda');
 
+const {
+    InvalidModuleConfigError,
+} = require('../utils/exceptions');
+
+const {
+    log,
+    parseArgs,
+    getConfig,
+    isDirectory,
+    isFile,
+    getTemplatePath,
+    importModule,
+    joinPathWith,
+} = require('../utils/helpers');
+
+
 const PROJECT_ROOT = path.resolve(__dirname, '../');
 const USER_DIR = path.resolve();
-
-/*
-
-type Args = {
-    boilerplateName :: String
-    outDir :: String
-    args :: Object<String>
-}
-
-type TemplateConfig = {
-    templateDirGlob :: String
-    data :: Object
-}
-
-*/
-
-const log = name => data => {
-    console.log(name, data);
-    return data;
-};
-
-// parseArgs :: () -> Args
-const parseArgs = () => {
-    const { _: [ boilerplateName ], o: outDir, ...args } = yargs.argv;
-    return { boilerplateName, outDir, args };
-};
-
-// getConfig :: String -> String
-const getConfig = key => parseArgs()[key];
-
-// isDirectory :: String -> Boolean
-const isDirectory = dpath => {
-    try {
-        return fs.lstatSync(dpath).isDirectory();
-    } catch(e) {
-        return false;
-    }
-};
-// isFile :: String -> Boolean
-const isFile = fpath => {
-    try {
-        return fs.lstatSync(fpath).isFile();
-    } catch(e) {
-        return false;
-    }
-};
-
-// getTemplatePath :: String -> Either<String>
-const getTemplatePath = templateName => {
-
-    let templatePath =
-        path.join(PROJECT_ROOT, 'packages', templateName);
-
-    return isDirectory(templatePath)? templatePath: '';
-};
-
-// importModule :: String -> Function
-const importModule = require;
-
-// joinPathWith :: String -> String -> String
-const joinPathWith = p2 => p1 => path.join(p1, p2);
-
-
 
 const boilerplateName = getConfig('boilerplateName');
 
 const templatePath = getTemplatePath(boilerplateName);
 
 if(!templatePath) {
-    return;
+    throw new InvalidModuleConfigError('Invalid boilerplate directory');
 }
 
 const boilerplateModule = importModule(templatePath);
+
+if(typeof boilerplateModule !== 'function') {
+    throw new InvalidModuleConfigError('Template module needs to export a function');
+}
 
 // TODO: Check if boilerplateModule is a function
 const templateConfig = boilerplateModule({ args: getConfig('args') });
