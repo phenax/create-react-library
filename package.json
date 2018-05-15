@@ -2,7 +2,10 @@
   "dependencies": {
     "crocks": "^0.9.3",
     "glob": "^7.1.2",
+    "mkdirp": "^0.5.1",
     "mustache": "^2.3.0",
+    "node-mkdirp": "^0.0.1",
+    "ramda": "^0.25.0",
     "yargs": "^11.0.0"
   }
 }
