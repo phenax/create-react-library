@@ -9,7 +9,7 @@ const mkdirp = require('mkdirp');
 const {
     compose,
     not,
-    test: matchRegex,
+    test: testRegex,
 } = require('ramda');
 
 const PROJECT_ROOT = path.resolve(__dirname, '../');
@@ -70,12 +70,8 @@ const getTemplatePath = templateName => {
     return isDirectory(templatePath)? templatePath: '';
 };
 
-// getPathToModule :: String -> String
-const getPathToModule = templatePath =>
-    path.join(templatePath, 'index.js');
-
 // importModule :: String -> Function
-const importModule = compose(require, getPathToModule);
+const importModule = require;
 
 // joinPathWith :: String -> String -> String
 const joinPathWith = p2 => p1 => path.join(p1, p2);
@@ -104,7 +100,7 @@ const boilerplateFiles = glob.sync(path.join(templatePath, 'template', templateD
 
 boilerplateFiles
     .filter(isFile)
-    .filter(compose(not, matchRegex(ignoredRegex)))
+    .filter(compose(not, testRegex(ignoredRegex)))
     .map(filePath => {
 
         let fileContents = fs.readFileSync(filePath);
