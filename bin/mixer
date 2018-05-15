@@ -1,7 +1,12 @@
 #!/bin/env node
 
+const fs = require('fs');
+const glob = require('glob');
 const yargs = require('yargs');
 const handlebars = require('handlebars');
 
-
-
+// Parse all arguments
+// Call the package
+// Use glob and package path to get template path
+// Use the data for rendering the template
+// Output to current directory
