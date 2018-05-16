@@ -2,8 +2,17 @@
 const fs = require('fs');
 const path = require('path');
 const yargs = require('yargs');
+const glob = require('glob');
+const mustache = require('mustache');
+const mkdirp = require('mkdirp');
+const {
+    compose,
+    identity,
+    replace,
+    toString,
+} = require('ramda');
 
-const { PROJECT_ROOT } = require('./constants');
+const { PROJECT_ROOT, TEMPLATE_DIRNAME, USER_DIR } = require('./constants');
 
 /*
 
@@ -55,18 +64,45 @@ const isFile = fpath => {
 
 // getTemplatePath :: String -> Either<String>
 const getTemplatePath = templateName => {
-
     let templatePath =
         path.join(PROJECT_ROOT, 'packages', templateName);
-
     return isDirectory(templatePath)? templatePath: '';
 };
 
-// importModule :: String -> Function
-const importModule = require;
+// importModuleConfig :: String -> Function
+const importModuleConfig = templatePath => require(templatePath)({
+    args: getConfig('args')
+});
 
 // joinPathWith :: String -> String -> String
 const joinPathWith = p2 => p1 => path.join(p1, p2);
+
+// createFile :: String, String -> _
+const createFile = (fileContents, outDir) => {
+    mkdirp.sync(path.dirname(outDir));
+    fs.writeFileSync(outDir, fileContents);
+};
+
+// renderTemplateString :: Object -> String -> _
+const renderTemplateString = params => content =>
+    mustache.render(content, params);
+
+// getTemplateFiles -> String -> Array<String>
+const getTemplateFiles = templatePath =>
+    glob.sync(path.join(templatePath, TEMPLATE_DIRNAME, './**/*'));
+
+// renderTemplateFromFile :: Object -> String -> String
+const renderTemplateFromFile = templateData => compose(
+    renderTemplateString(templateData),
+    toString,
+    fs.readFileSync
+);
+
+// toOutputTemplatePath :: String -> String -> String
+const toOutputTemplatePath = templatePath => replace(
+    path.join(templatePath, TEMPLATE_DIRNAME),
+    path.join(USER_DIR, getConfig('outDir')),
+);
 
 
 module.exports = {
@@ -76,6 +112,11 @@ module.exports = {
     isDirectory,
     isFile,
     getTemplatePath,
-    importModule,
+    importModuleConfig,
     joinPathWith,
+    renderTemplateString,
+    createFile,
+    getTemplateFiles,
+    renderTemplateFromFile,
+    toOutputTemplatePath,
 };
