@@ -5,7 +5,8 @@ module.exports = ({ args }) => {
     ignore: /node_modules/gi,
     data: {
       package_name: args.name,
-      package_description: 'cool',
+      package_description: args.description || 'Package description',
+      package_repository: `https://github.com/user/${args.name}`,
     },
   };
 

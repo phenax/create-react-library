@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "description": "{{package_description}}",
   "main": "build/index.js",
-  "repository": "https://github.com/phenax/react-cc-validator",
+  "repository": "{{package_repository}}",
   "author": "{{author}}",
   "license": "MIT",
   "keywords": [
