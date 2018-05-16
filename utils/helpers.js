@@ -23,7 +23,7 @@ type Args = {
 }
 
 type TemplateConfig = {
-    templateDirGlob :: String
+    ignore :: Regex
     data :: Object<A>
 }
 

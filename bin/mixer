@@ -28,6 +28,7 @@ const {
     toOutputTemplatePath,
 } = require('../utils/helpers');
 
+
 const templatePath =
     getTemplatePath(getConfig('boilerplateName'));
 
@@ -43,17 +44,15 @@ const {
     preventExecution = false,
 } = importModuleConfig(templatePath);
 
-if(preventExecution) {
-    return;
+if(!preventExecution) {
+    getTemplateFiles(templatePath)
+        .filter(isFile)
+        .filter(compose(not, testRegex(ignoredRegex)))
+        .map(unary(
+            converge(createFile, [
+                unary(renderTemplateFromFile(templateData)),
+                unary(toOutputTemplatePath(templatePath)),
+            ]),
+        ));
 }
-
-getTemplateFiles(templatePath)
-    .filter(isFile)
-    .filter(compose(not, testRegex(ignoredRegex)))
-    .map(unary(
-        converge(createFile, [
-            unary(renderTemplateFromFile(templateData)),
-            unary(toOutputTemplatePath(templatePath)),
-        ]),
-    ));
 
