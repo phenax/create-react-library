@@ -27,6 +27,10 @@ type TemplateConfig = {
     data :: Object<A>
 }
 
+type FilePath = String
+
+type TemplateData = Object<A>
+
 */
 
 // log :: String -> A -> A
@@ -41,10 +45,10 @@ const parseArgs = () => {
     return { boilerplateName, outDir, args };
 };
 
-// getConfig :: String -> String
+// getConfig :: String -> A
 const getConfig = key => parseArgs()[key];
 
-// isDirectory :: String -> Boolean
+// isDirectory :: FilePath -> Boolean
 const isDirectory = dpath => {
     try {
         return fs.lstatSync(dpath).isDirectory();
@@ -53,7 +57,7 @@ const isDirectory = dpath => {
     }
 };
 
-// isFile :: String -> Boolean
+// isFile :: FilePath -> Boolean
 const isFile = fpath => {
     try {
         return fs.lstatSync(fpath).isFile();
@@ -62,43 +66,43 @@ const isFile = fpath => {
     }
 };
 
-// getTemplatePath :: String -> Either<String>
+// getTemplatePath :: String -> Boolean
 const getTemplatePath = templateName => {
-    let templatePath =
+    const templatePath =
         path.join(PROJECT_ROOT, 'packages', templateName);
     return isDirectory(templatePath)? templatePath: '';
 };
 
-// importModuleConfig :: String -> Function
+// importModuleConfig :: FilePath -> Function
 const importModuleConfig = templatePath => require(templatePath)({
     args: getConfig('args')
 });
 
-// joinPathWith :: String -> String -> String
+// joinPathWith :: FilePath -> FilePath -> FilePath
 const joinPathWith = p2 => p1 => path.join(p1, p2);
 
-// createFile :: String, String -> _
+// createFile :: String, FilePath -> _
 const createFile = (fileContents, outDir) => {
     mkdirp.sync(path.dirname(outDir));
     fs.writeFileSync(outDir, fileContents);
 };
 
-// renderTemplateString :: Object -> String -> _
-const renderTemplateString = params => content =>
-    mustache.render(content, params);
+// renderTemplateString :: TemplateData -> String -> _
+const renderTemplateString = templateData => content =>
+    mustache.render(content, templateData);
 
-// getTemplateFiles -> String -> Array<String>
+// getTemplateFiles -> FilePath -> Array<FilePath>
 const getTemplateFiles = templatePath =>
     glob.sync(path.join(templatePath, TEMPLATE_DIRNAME, './**/*'));
 
-// renderTemplateFromFile :: Object -> String -> String
+// renderTemplateFromFile :: TemplateData -> FilePath -> String
 const renderTemplateFromFile = templateData => compose(
     renderTemplateString(templateData),
     toString,
     fs.readFileSync
 );
 
-// toOutputTemplatePath :: String -> String -> String
+// toOutputTemplatePath :: FilePath -> FilePath -> FilePath
 const toOutputTemplatePath = templatePath => replace(
     path.join(templatePath, TEMPLATE_DIRNAME),
     path.join(USER_DIR, getConfig('outDir')),

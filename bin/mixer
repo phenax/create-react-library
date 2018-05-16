@@ -12,25 +12,10 @@ const {
     InvalidModuleConfigError,
 } = require('../utils/exceptions');
 
-const {
-    log,
-    parseArgs,
-    getConfig,
-    isDirectory,
-    isFile,
-    getTemplatePath,
-    importModuleConfig,
-    joinPathWith,
-    renderTemplateString,
-    createFile,
-    getTemplateFiles,
-    renderTemplateFromFile,
-    toOutputTemplatePath,
-} = require('../utils/helpers');
-
+const utils = require('../utils/helpers');
 
 const templatePath =
-    getTemplatePath(getConfig('boilerplateName'));
+    utils.getTemplatePath(utils.getConfig('boilerplateName'));
 
 if(!templatePath) {
     throw new InvalidModuleConfigError(
@@ -42,16 +27,16 @@ const {
     ignore: ignoredRegex,
     data: templateData,
     preventExecution = false,
-} = importModuleConfig(templatePath);
+} = utils.importModuleConfig(templatePath);
 
 if(!preventExecution) {
-    getTemplateFiles(templatePath)
-        .filter(isFile)
+    utils.getTemplateFiles(templatePath)
+        .filter(utils.isFile)
         .filter(compose(not, testRegex(ignoredRegex)))
         .map(unary(
-            converge(createFile, [
-                unary(renderTemplateFromFile(templateData)),
-                unary(toOutputTemplatePath(templatePath)),
+            converge(utils.createFile, [
+                unary(utils.renderTemplateFromFile(templateData)),
+                unary(utils.toOutputTemplatePath(templatePath)),
             ]),
         ));
 }
