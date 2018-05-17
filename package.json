@@ -9,7 +9,10 @@
   "name": "create-npm-library",
   "version": "0.0.0",
   "description": "__",
-  "main": "bin/mixer",
+  "bin": {
+    "create-npm-library": "bin/create-npm-library"
+  },
+  "main": "bin/create-npm-library",
   "repository": "__",
   "author": "Akshay Nair <phenax5@gmail.com>",
   "license": "MIT"
