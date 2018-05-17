@@ -8,12 +8,12 @@
   },
   "name": "create-npm-library",
   "version": "0.0.0",
-  "description": "__",
+  "description": "Generate boilerplate code involved in writing npm packages",
   "bin": {
     "create-npm-library": "bin/create-npm-library"
   },
   "main": "bin/create-npm-library",
-  "repository": "__",
+  "repository": "https://github.com/phenax/create-react-library",
   "author": "Akshay Nair <phenax5@gmail.com>",
   "license": "MIT"
 }
