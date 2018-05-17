@@ -3,13 +3,17 @@
 Boilerplate generator for creating npm packages
 
 
+## To install
+`sudo yarn add global create-npm-library`
+
+
 ## To generate boilerplate
 
 #### React component
-npx create-npm-library react-component -o directory --name package-name
+`create-npm-library react-component -o directory --name package-name`
 
 #### Vanilla js library
-npx create-npm-library vanilla -o directory --name package-name
+`create-npm-library vanilla -o directory --name package-name`
 
 
 ## To publish your package 
@@ -24,8 +28,7 @@ npx create-npm-library vanilla -o directory --name package-name
 ## To test your package locally
 
 1. In your package directory
-`npm link`
+`yarn link`
 
 2. In your project root
-`npm link {{package-name}}`
-
+`yarn link {{package-name}}`
